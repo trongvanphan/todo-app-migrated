@@ -61,26 +61,21 @@ def test_delete(client):
     assert client.get("/api/tasks").json() == []
 
 
-def test_user_isolation(client, monkeypatch):
+def test_user_isolation(client):
     t = client.post("/api/tasks", json={"title": "secret"}).json()
     from app.main import create_app
     app2 = create_app()
     app2.dependency_overrides[get_current_user] = lambda: User(uid="u2")
-    from fastapi.testclient import TestClient
     c2 = TestClient(app2)
     assert c2.get("/api/tasks").json() == []
     assert c2.delete(f"/api/tasks/{t['id']}").status_code == 404
 
 
 def test_missing_auth_returns_401():
-    monkey_app_env = os.environ.copy()
-    os.environ["DATABASE_URL"] = "sqlite:///./test_todo.db"
-    import app.core.firebase as fb
-    fb._initialized = True
     from app.main import create_app
     app = create_app()
-    from fastapi.testclient import TestClient
+    # No dependency override → real get_current_user runs; HTTPBearer sees no header.
     c = TestClient(app)
     r = c.get("/api/tasks")
     assert r.status_code == 401
-    os.environ.clear(); os.environ.update(monkey_app_env)
+    assert r.headers.get("www-authenticate", "").lower().startswith("bearer")
