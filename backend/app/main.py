@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import Base, engine
+from app.routers import auth
 
 
 @asynccontextmanager
@@ -24,12 +25,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth.router, prefix="/auth", tags=["auth"])
+
 
 @app.get("/")
 def health_check() -> dict[str, str]:
     return {"status": "ok"}
-
-
-# Auth router will be mounted after STEP-6
-from app.routers import auth  # noqa: E402
-app.include_router(auth.router, prefix="/auth", tags=["auth"])
