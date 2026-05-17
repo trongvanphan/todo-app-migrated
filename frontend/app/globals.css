@@ -1,0 +1,24 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: #f4f4f4;
+  color: #222;
+}
+.container { max-width: 560px; margin: 40px auto; padding: 0 16px; }
+.card { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); padding: 24px; }
+h1 { margin: 0 0 16px; font-weight: 300; }
+button { cursor: pointer; }
+.btn { display: inline-block; padding: 8px 16px; border: 1px solid #ccc; background: white; border-radius: 4px; font-size: 14px; }
+.btn:hover { background: #f0f0f0; }
+.btn-primary { background: #2c7be5; color: white; border-color: #2c7be5; }
+.task-input { width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ddd; border-radius: 4px; }
+.task-list { list-style: none; padding: 0; margin: 16px 0; }
+.task-item { display: flex; align-items: center; gap: 12px; padding: 10px 4px; border-bottom: 1px solid #eee; }
+.task-item.completed .task-title { text-decoration: line-through; color: #999; }
+.task-title { flex: 1; }
+.icon-btn { border: none; background: transparent; color: #c66; font-size: 18px; }
+.footer { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; font-size: 13px; color: #666; }
+.footer a { color: #666; text-decoration: none; padding: 2px 8px; border-radius: 3px; }
+.footer a.active { border: 1px solid #2c7be5; color: #2c7be5; }
+.signin-stack { display: flex; flex-direction: column; gap: 12px; }
