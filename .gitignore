@@ -4,3 +4,4 @@
 
 # backend secrets
 backend/.env
+/backend/tests/__pycache__
