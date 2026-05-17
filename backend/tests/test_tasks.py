@@ -37,14 +37,16 @@ def test_update_task_ownership(client, auth_headers, auth_headers2):
     r = client.post("/tasks", json={"title": "Mine"}, headers=auth_headers)
     task_id = r.json()["id"]
     response = client.patch(f"/tasks/{task_id}", json={"title": "Stolen"}, headers=auth_headers2)
-    assert response.status_code == 403
+    # Returns 404 (not 403) to prevent task ID enumeration [VF-5]
+    assert response.status_code == 404
 
 
 def test_delete_task_ownership(client, auth_headers, auth_headers2):
     r = client.post("/tasks", json={"title": "Mine"}, headers=auth_headers)
     task_id = r.json()["id"]
     response = client.delete(f"/tasks/{task_id}", headers=auth_headers2)
-    assert response.status_code == 403
+    # Returns 404 (not 403) to prevent task ID enumeration [VF-5]
+    assert response.status_code == 404
 
 
 def test_delete_task(client, auth_headers):

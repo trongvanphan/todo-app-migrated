@@ -6,6 +6,33 @@ def test_anonymous_signin_returns_token(client):
     assert "user_id" in data
 
 
+def test_anonymous_token_is_valid_jwt(client):
+    """VF-10: Verify the anonymous JWT is decodable with correct sub and future expiry."""
+    from datetime import datetime, timezone
+    from jose import jwt
+    from app.config import settings
+
+    data = client.post("/auth/anonymous").json()
+    payload = jwt.decode(data["access_token"], settings.secret_key, algorithms=[settings.algorithm])
+    assert payload["sub"] == str(data["user_id"])
+    assert payload["exp"] > datetime.now(timezone.utc).timestamp()
+
+
+def test_expired_jwt_returns_401(client):
+    """VF-2: Verify that an expired JWT is rejected with 401."""
+    from datetime import datetime, timedelta, timezone
+    from jose import jwt
+    from app.config import settings
+
+    expired_token = jwt.encode(
+        {"sub": "999", "exp": datetime.now(timezone.utc) - timedelta(days=1)},
+        settings.secret_key,
+        algorithm=settings.algorithm,
+    )
+    response = client.get("/tasks", headers={"Authorization": f"Bearer {expired_token}"})
+    assert response.status_code == 401
+
+
 def test_anonymous_signin_creates_unique_users(client):
     r1 = client.post("/auth/anonymous")
     r2 = client.post("/auth/anonymous")

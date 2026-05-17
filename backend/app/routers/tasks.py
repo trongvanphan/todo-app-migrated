@@ -41,11 +41,11 @@ def update_task(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> Task:
-    task = db.query(Task).filter(Task.id == task_id).first()
+    # Single query combines existence + ownership — returns 404 for both
+    # "not found" and "not owned" to prevent task ID enumeration [VF-5]
+    task = db.query(Task).filter(Task.id == task_id, Task.user_id == current_user.id).first()
     if task is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
-    if task.user_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your task")
     if body.title is not None:
         task.title = body.title
     if body.completed is not None:
@@ -61,11 +61,9 @@ def delete_task(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> Response:
-    task = db.query(Task).filter(Task.id == task_id).first()
+    task = db.query(Task).filter(Task.id == task_id, Task.user_id == current_user.id).first()
     if task is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
-    if task.user_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your task")
     db.delete(task)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
